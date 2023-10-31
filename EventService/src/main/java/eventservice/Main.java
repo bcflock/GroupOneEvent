@@ -124,7 +124,7 @@ public class Main {
                 Event event = Event.create(eventID, date, time, title, description, hostEmail);
                 System.out.println(event);
 
-                datastore.insert(event.toPojo());
+                datastore.save(event);
                 System.out.println("Event created: " + event);
             } catch(NoSuchElementException e){
                 fail(exchange, 400, "Must provide json in request body");
@@ -132,13 +132,16 @@ public class Main {
             } catch (Event.HandledIllegalValueException e) {
                 fail(exchange, 400, "Failed to create event: " + e.getMessage());
                 return;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return;
             }
             sendResponse(exchange);
         }
     }
 
     public static void main(String[] args) throws IOException {
-        datastore.getMapper().mapPackage("eventservice");
+        datastore.getMapper().map(Event.class);
         datastore.ensureIndexes();
 
         try {

@@ -1,13 +1,13 @@
 package eventservice;
 
-import org.mongodb.morphia.annotations.Entity;
-import org.mongodb.morphia.annotations.Id;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Month;
 import java.util.Optional;
 import java.util.UUID;
+
+import dev.morphia.annotations.*;
+
 import java.time.LocalDateTime;
 
 @Entity("events")
@@ -92,7 +92,7 @@ public record Event(
     }
 
     public EventPojo toPojo(){
-        return new EventPojo(uuid.toString(), eventDateTime, title, description, hEmail);
+        return new EventPojo(uuid.toString(), eventDateTime.toString(), title, description, hEmail);
     }
 
 

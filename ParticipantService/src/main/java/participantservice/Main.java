@@ -142,16 +142,19 @@ public class Main {
                 String participantID = (String) json.get("participantID");
 
                 Participant participant = Participant.create(participantID, eventID, name, email);
-                datastore.save(participant);
+                System.out.println(participant);
 
+                datastore.save(participant);
                 System.out.println("Participant created: " + participant);
 
             } catch(NoSuchElementException e){
                 fail(exchange, 400, "Must provide json in request body");
             } catch (Participant.HandledIllegalValueException  e) {
                 fail(exchange, 400, "Failed to create participant: " + e.getMessage());
+            } catch (Exception e) {
+                e.printStackTrace();
+                return;
             }
-
             sendResponse(exchange);
         }
     }

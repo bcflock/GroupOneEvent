@@ -4,12 +4,11 @@ import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity("events")
 public class EventPojo {
     @Id
-    UUID uuid;
+    String uuid;
     LocalDateTime eventDateTime;
     String title;
     String description;
@@ -17,7 +16,7 @@ public class EventPojo {
 
     public EventPojo(){
     }
-    public EventPojo(UUID uuid, LocalDateTime eventDateTime, String title, String description, String hEmail) {
+    public EventPojo(String uuid, LocalDateTime eventDateTime, String title, String description, String hEmail) {
         this.uuid = uuid;
         this.eventDateTime = eventDateTime;
         this.title = title;
@@ -25,11 +24,11 @@ public class EventPojo {
         this.hEmail = hEmail;
     }
 
-    public UUID getUuid() {
+    public String getUuid() {
         return uuid;
     }
 
-    public void setUuid(UUID uuid) {
+    public void setUuid(String uuid) {
         this.uuid = uuid;
     }
 

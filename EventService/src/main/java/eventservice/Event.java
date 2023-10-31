@@ -48,8 +48,8 @@ public final class Event {
         String[] dateSplit = date.split("-");
         String[] timeSplit = time.split(" |:");
         int hour = Integer.parseInt(timeSplit[0]);
-        if (hour < 1 || hour > 24) {
-            throw new HandledIllegalValueException("Hour must be in the range [1,24]");
+        if (hour < 0 || hour > 23){
+            throw new HandledIllegalValueException("Hour must be in the range [0,23]");
         }
         int minute = Integer.parseInt(timeSplit[1]);
         if (minute < 0 || minute > 59) {

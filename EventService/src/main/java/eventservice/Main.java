@@ -53,8 +53,8 @@ public class Main {
             exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
             exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
             exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "OPTIONS,POST,GET");
-            exchange.sendResponseHeaders(200, 0);
             exchange.getResponseHeaders().forEach((a, b) -> System.out.println("a: " + a + "| b: " + b));
+            exchange.sendResponseHeaders(200, 0);
             output.write(response.toJSONString().getBytes());
         } catch (IOException e) {
             // TODO: handle
@@ -75,8 +75,8 @@ public class Main {
             exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
             exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
             exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "OPTIONS,POST,GET");
-            exchange.sendResponseHeaders(statusCode, 0);
             exchange.getResponseHeaders().forEach((a, b) -> System.out.println("a: " + a + "| b: " + b));
+            exchange.sendResponseHeaders(statusCode, 0);
             var output = exchange.getResponseBody();
             output.write(response.toJSONString().getBytes());
         } catch (IOException e) {

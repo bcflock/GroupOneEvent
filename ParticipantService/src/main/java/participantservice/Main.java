@@ -140,7 +140,7 @@ public class Main {
                 String participantID = (String) json.get("participantID");
 
                 Participant participant = Participant.create(participantID, eventID, name, email);
-                datastore.insert(participant);
+                datastore.save(participant);
 
                 System.out.println("Participant created: " + participant);
 
@@ -156,7 +156,7 @@ public class Main {
     }
 
     public static void main(String[] args) throws IOException {
-        datastore.getMapper().mapPackage("com.mongodb.morphia.entities");
+        datastore.getMapper().mapPackage("participantservice");
         datastore.ensureIndexes();
 
         try {

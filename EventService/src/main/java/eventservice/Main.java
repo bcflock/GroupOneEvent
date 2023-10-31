@@ -98,8 +98,8 @@ public class Main {
                     event ->
                             eventList.add(
                                     new JSONObject(Map.of(
-                                            "date", event.eventDateTime().toLocalDate(),
-                                            "time", event.eventDateTime().toLocalTime(),
+                                            "date", event.eventDateTime().toLocalDate().toString(),
+                                            "time", event.eventDateTime().toLocalTime().toString(),
                                             "title", event.title(),
                                             "desc", event.description(),
                                             "email", event.hEmail(),

@@ -104,10 +104,16 @@ public class Main {
             try {
                 json = readJSONRequest(exchange).orElseThrow();
                 eventID = (String) json.get("eventID");
-                participants = datastore.find(Participant.class)
-                        .filter(eq("eventId",eventID))
-                        .iterator(new FindOptions().sort(Sort.descending("name")))
-                        .toList();
+                if(Objects.nonNull(eventID)) {
+                    participants = datastore.find(Participant.class)
+                            .filter(eq("eventId", eventID))
+                            .iterator(new FindOptions().sort(Sort.descending("name")))
+                            .toList();
+                } else {
+                    participants = datastore.find(Participant.class)
+                            .iterator(new FindOptions().sort(Sort.descending("name")))
+                            .toList();
+                }
             } catch(NoSuchElementException e){
                 fail(exchange, 400, "Must provide json in request body");
                 return;

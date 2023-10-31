@@ -32,7 +32,7 @@ import static dev.morphia.query.experimental.filters.Filters.eq;
 
 
 public class Main {
-    private final static String MONGO_URI = "mongodb+srv://%s:%s@%s/?retryWrites=true&w=major"
+    private final static String MONGO_URI = "mongodb+srv://%s:%s@%s/?retryWrites=true&w=majority"
             .formatted(
                     System.getenv("MONGO_USER"),
                     System.getenv("MONGO_PASS"),

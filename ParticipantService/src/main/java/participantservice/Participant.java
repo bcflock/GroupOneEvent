@@ -8,8 +8,8 @@ import java.util.UUID;
 
 @Entity("participants")
 public record Participant(
-        @Id UUID uuid,
-        UUID eventId,
+        @Id String uuid,
+        String eventId,
         String name,
         String email) {
     public static String validateEmail(String email) throws HandledIllegalValueException {
@@ -34,7 +34,7 @@ public record Participant(
             throw new HandledIllegalValueException("UUID is invalid, please try again");
         }
         try{
-            return new Participant(uid, UUID.fromString(eventId), name, validateEmail(email));
+            return new Participant(uid.toString(), (eventId), name, validateEmail(email));
         } catch (IllegalArgumentException e) {
             throw new HandledIllegalValueException("Event ID parameter is invalid");
         }

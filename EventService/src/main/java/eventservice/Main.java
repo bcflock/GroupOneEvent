@@ -25,7 +25,7 @@ import dev.morphia.Morphia;
 import dev.morphia.query.FindOptions;
 
 public class Main {
-    private final static String MONGO_URI = "mongodb+srv://%s:%s@%s/"
+    private final static String MONGO_URI = "mongodb+srv://%s:%s@%s/retryWrites=true&w=majority"
             .formatted(
                     System.getenv("MONGO_USER"),
                     System.getenv("MONGO_PASS"),

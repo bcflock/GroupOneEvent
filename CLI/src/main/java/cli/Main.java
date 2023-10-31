@@ -166,7 +166,7 @@ public class Main {
             return 0;
         }
     }
-/*
+
     @Command(name = "list-participants", mixinStandardHelpOptions = true, version="1.0")
     private static class ListParticipantsCommand implements Callable<Integer> {
 
@@ -174,24 +174,35 @@ public class Main {
         String eventID;
 
         @Override
-        public Integer call() throws SQLException{
-            List<Participant> participants = dbClient.getParticipants(eventID);
-            StringBuilder sb = new StringBuilder();
+        public Integer call(){
+            JSONObject pl = new JSONObject();
+            pl.put("eventID", eventID);
+            var request = HttpRequest.newBuilder()
+                    .uri(URI.create(GATEWAY+"/api/list-participants"))
+                    .POST(BodyPublishers.ofString(pl.toString()))
+                    .build();
+            try {
+                var response = client.send(request, BodyHandlers.ofString());
+                var body = new JSONObject(response.body());
+                var array = body.getJSONArray("participants");
+                array.forEach(
+                        (item) -> {
+                            var obj = new JSONObject(item.toString());
+                            System.out.println("Event ID: %s| Name: %s | Email: %s | Participant ID: %s".formatted(
+                                    obj.get("eventID"),
+                                    obj.get("name"),
+                                    obj.get("email"),
+                                    obj.get("uuid")
+                            ));
+                        }
+                );
+            } catch (IOException | InterruptedException e){
 
-            for(Participant participant : participants){
-                sb.append(String.format(
-                        "%s | Email : %s | Participant ID: %s",
-                        participant.name(),participant.email(), participant.uuid()
-                ));
             }
-
-            System.out.println(sb);
             return 0;
-            }
-            
         }
         
-    }*/
+    }
 
 
 
@@ -213,7 +224,7 @@ public class Main {
                 case "event" -> new CommandLine(new EventCommand()).execute(commandArgs);
                 case "participant" -> new CommandLine(new ParticipantCommand()).execute(commandArgs);
                 case "list-events" -> new CommandLine(new ListEventsCommand()).execute(commandArgs);
-                //case "list-participants" -> new CommandLine(new ListParticipantsCommand()).execute(commandArgs);
+                case "list-participants" -> new CommandLine(new ListParticipantsCommand()).execute(commandArgs);
                 default -> System.out.println("Error: unknown command");
             }
             System.out.print("$> ");

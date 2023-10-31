@@ -98,6 +98,7 @@ public class Main {
             JSONObject json;
 
             String eventID;
+            System.out.println("Getting participants");
 
             List<Participant> participants;
             try {
@@ -111,6 +112,7 @@ public class Main {
                 fail(exchange, 400, "Must provide json in request body");
                 return;
             }
+            System.out.println("Got participants");
 
             JSONArray participantList = new JSONArray();
             participants.forEach(

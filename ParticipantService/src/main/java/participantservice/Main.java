@@ -156,7 +156,7 @@ public class Main {
     }
 
     public static void main(String[] args) throws IOException {
-        datastore.getMapper().mapPackage("participantservice");
+        datastore.getMapper().map(Participant.class);
         datastore.ensureIndexes();
 
         try {

@@ -23,8 +23,6 @@ public class Main {
     private final static String EVENT_ADDR       = "http://" + HOSTNAME + ":3001";
     private final static String PARTICIPANT_ADDR = "http://" + HOSTNAME + ":3002";
 
-//    private final static String EVENT_ADDR = "localhost:3001";
-//    private final static String PARTICIPANT_ADDR  = "localhost:3002";
     private static class RequestHandler implements HttpHandler {
         private URI uri; 
 
@@ -39,12 +37,10 @@ public class Main {
         @Override
         public void handle(HttpExchange exchange) {
             System.out.println("Handling");
-            System.out.println("URI:");
-            System.out.println(uri);
             var requestBuilder = HttpRequest.newBuilder(uri);
             System.out.println("URI:");
             System.out.println(uri);
-                requestBuilder.method(exchange.getRequestMethod(), BodyPublishers.ofInputStream(() -> exchange.getRequestBody()));
+            requestBuilder.method(exchange.getRequestMethod(), BodyPublishers.ofInputStream(() -> exchange.getRequestBody()));
             HttpRequest request = requestBuilder.build();
             HttpResponse<InputStream> response;
 
@@ -52,6 +48,7 @@ public class Main {
                 response = client.send(request, BodyHandlers.ofInputStream());
             } catch (IOException | InterruptedException e) {
                 System.err.println("Failed to communicate with service at '" + uri + "': " + e.getMessage());
+                e.printStackTrace();
                 exchange.close();
                 return;
             }

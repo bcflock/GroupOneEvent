@@ -2,6 +2,8 @@ import "../styles/Page.css"
 import axios from "axios"
 import { useEffect, useState } from "react"
 import toast from 'react-hot-toast'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSearch } from '@fortawesome/free-solid-svg-icons';
 
 function GetParticipants() {
 
@@ -77,7 +79,7 @@ function GetParticipants() {
                   pattern = '^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$'/>
                 <span class="search-placeholder">XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX</span>
               </div>
-              <button onClick={updateParticipants}>Search</button>
+              <i class="search-btn" onClick={updateParticipants}><FontAwesomeIcon className='fa nav-icon' icon={faSearch} size ="sm"/></i>
             </div>
             {getLegend()}
             {getparticipantsList()}

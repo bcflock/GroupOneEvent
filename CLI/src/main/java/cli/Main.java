@@ -28,6 +28,7 @@ public class Main {
     private static HttpClient client;
     private static URI uri; 
 
+    private static String GATEWAY = "http://ec2-54-145-190-43.compute-1.amazonaws.com:3000";
     @Command(name = "event", mixinStandardHelpOptions = true)
     private static class EventCommand implements Callable<Integer> {
 
@@ -57,20 +58,29 @@ public class Main {
             try {
                 JSONObject ev = new JSONObject();
 
-                ev.put("Date", date);
-                ev.put("Time", time);
-                ev.put("AMPM", ampm);
-                ev.put("Title", title);
-                ev.put("Description", description);
-                ev.put("Host Email", hostEmail);
-                ev.putOpt("Event ID", eventID);
+                int hour = Integer.parseInt(time.split(":")[0]);
+                String minute = time.split(":")[1];
+                if (hour > 11 ) {
+                    hour = 0;
+                }
+                if (ampm.equals("PM")) {
+                    hour += 12;
+                }
 
-                uri = URI.create("http://ec2-54-145-190-43.compute-1.amazonaws.com:3000/api/event");
+                time = "%d:%s".formatted(hour, minute);
+                ev.put("date", date);
+                ev.put("time", time);
+                ev.put("title", title);
+                ev.put("desc", description);
+                ev.put("email", hostEmail);
+                ev.putOpt("uuid", eventID);
+                System.out.println(date);
+                uri = URI.create(GATEWAY + "/api/event");
                 
-                HttpRequest request = HttpRequest.newBuilder(uri).
-                        POST(BodyPublishers.ofString(ev.toString()))
-                        .header("Content-type","application/json")
-                        .build();
+                HttpRequest request = HttpRequest.newBuilder(uri)
+                                .POST(BodyPublishers.ofString(ev.toString()))
+                                .header("Content-type","application/json")
+                                .build();
 
                 client.send(request, BodyHandlers.discarding());
 
@@ -101,12 +111,12 @@ public class Main {
             try {
                 JSONObject pp = new JSONObject();
 
-                pp.put("Event ID", eventID);
-                pp.put("Name", name);
-                pp.put("Email", email);
-                pp.putOpt("Participant ID", participantID);
+                pp.put("eventID", eventID);
+                pp.put("name", name);
+                pp.put("email", email);
+                pp.putOpt("uuid", participantID);
                 
-                uri = URI.create("http://ec2-54-145-190-43.compute-1.amazonaws.com:3000/api/participant");
+                uri = URI.create(GATEWAY + "/api/participant");
                 
                 HttpRequest request = HttpRequest.newBuilder(uri).
                         POST(BodyPublishers.ofString(pp.toString()))
@@ -121,38 +131,42 @@ public class Main {
             return 0;
         }
     }
-/* 
+
     @Command(name = "list-events", mixinStandardHelpOptions = true, version="1.0")
     private static class ListEventsCommand implements Callable<Integer> {
 
         @Override
         public Integer call() throws SQLException {
-            List<Event> events = getEvents();
-            StringBuilder sb = new StringBuilder();
+            var request =HttpRequest.newBuilder()
+                    .uri(URI.create(GATEWAY+"/api/list-events"))
+                    .GET()
+                    .build();
+            try {
+                var response = client.send(request, BodyHandlers.ofString());
+                var body = new JSONObject(response.body());
+                var array = body.getJSONArray("events");
+                System.out.println(body);
+                array.forEach(
+                        (item) -> {
+                            var obj = new JSONObject(item.toString());
+                            System.out.println("Event ID: %s| Title: %s | Description: %s | Host Email: %s | Date: %s | Time(24h): %s".formatted(
+                                    obj.get("uuid"),
+                                    obj.get("title"),
+                                    obj.get("desc"),
+                                    obj.get("email"),
+                                    obj.get("date"),
+                                    obj.get("time")
+                            ));
+                        }
+                );
+            } catch (IOException | InterruptedException e){
 
-            for(Event event : events){
-                sb.append(String.format(
-                        "%s on %s at %s | Host Email: %s | Event ID: %s | '%s' \n\n",
-                        event.title(),
-                        event.eventDateTime().toLocalDate().format(
-                                DateTimeFormatter.ISO_LOCAL_DATE
-                        ),
-                        //event.eventDateTime().getHour(), event.eventDateTime().getMinute(),
-                        event.eventDateTime().toLocalTime().format(
-                                DateTimeFormatter.ofPattern("hh:mm a")
-                        ),
-                        event.hEmail(),
-                        event.uuid(),
-                        event.description()
-                ));
             }
-
-            System.out.println(sb);
             return 0;
         }
 
     }
-
+/*
     @Command(name = "list-participants", mixinStandardHelpOptions = true, version="1.0")
     private static class ListParticipantsCommand implements Callable<Integer> {
 
@@ -177,7 +191,7 @@ public class Main {
 
     }
 */
-    
+
     public static void main(String[] args) throws IOException, SQLException {
 
         client = HttpClient.newHttpClient();
@@ -193,7 +207,7 @@ public class Main {
             switch(words[0]){
                 case "event" -> new CommandLine(new EventCommand()).execute(commandArgs);
                 case "participant" -> new CommandLine(new ParticipantCommand()).execute(commandArgs);
-                //case "list-events" -> new CommandLine(new ListEventsCommand()).execute(commandArgs);
+                case "list-events" -> new CommandLine(new ListEventsCommand()).execute(commandArgs);
                 //case "list-participants" -> new CommandLine(new ListParticipantsCommand()).execute(commandArgs);
                 default -> System.out.println("Error: unknown command");
             }

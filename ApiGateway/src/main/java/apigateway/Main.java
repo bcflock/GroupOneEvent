@@ -9,6 +9,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.sql.SQLOutput;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -37,6 +38,7 @@ public class Main {
         @Override
         public void handle(HttpExchange exchange) {
             System.out.println("Handling");
+            System.out.println(exchange.getRequestBody().toString());
             var requestBuilder = HttpRequest.newBuilder(uri);
             System.out.println("URI:");
             System.out.println(uri);

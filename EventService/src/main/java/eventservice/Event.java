@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 
 @Entity("events")
 public record Event(
-        @Id UUID uuid,
+        @Id String uuid,
         LocalDateTime eventDateTime,
         String title,
         String description,
@@ -74,7 +74,7 @@ public record Event(
         } catch (IllegalArgumentException e) {
             throw new HandledIllegalValueException("UUID is invalid, please try again");
         }
-        return new Event(uid, validateDateTime(date, time), title, description, validateEmail(hEmail)).validateEmail();
+        return new Event(uid.toString(), validateDateTime(date, time), title, description, validateEmail(hEmail)).validateEmail();
     }
 
     public static Event create(String uuid, String date, String time, String title, String description, String hEmail) throws HandledIllegalValueException{

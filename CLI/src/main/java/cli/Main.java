@@ -8,16 +8,26 @@ import picocli.CommandLine.Parameters;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.BodyPublishers;
+import java.net.http.HttpResponse.BodyHandlers;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 
+
 import org.json.JSONObject;
 import org.w3c.dom.events.Event;
 
 public class Main {
+
+    private static HttpClient client;
+    private static URI uri; 
+
     @Command(name = "event", mixinStandardHelpOptions = true)
     private static class EventCommand implements Callable<Integer> {
 
@@ -43,7 +53,7 @@ public class Main {
         String eventID;
 
         @Override
-        public Integer call() throws SQLException {
+        public Integer call() {
             try {
                 JSONObject ev = new JSONObject();
 
@@ -55,12 +65,16 @@ public class Main {
                 ev.put("Host Email", hostEmail);
                 ev.putOpt("Event ID", eventID);
 
-                if(Objects.nonNull(eventID)) {
-                    //dbClient.addEvent(Event.create(eventID, date, "%s %s".formatted(time, ampm), title, description, hostEmail));
-                } else {
-                    //dbClient.addEvent(Event.create(date, "%s %s".formatted(time, ampm), title, description, hostEmail));
-                }
-            } catch(Event.HandledIllegalValueException e){
+                uri = URI.create("http://ec2-54-145-190-43.compute-1.amazonaws.com:3000/api/event");
+                
+                HttpRequest request = HttpRequest.newBuilder(uri).
+                        POST(BodyPublishers.ofString(ev.toString()))
+                        .header("Content-type","application/x-www-form-urlencoded")
+                        .build();
+
+                client.send(request, BodyHandlers.discarding());
+
+            } catch(IOException | InterruptedException e){
                 System.out.println("Failed to create event: " + e.getMessage());
             }
             return 0;
@@ -166,8 +180,8 @@ public class Main {
 
     
     public static void main(String[] args) throws IOException, SQLException {
-        //dbClient = new DbClient();
 
+        client = HttpClient.newHttpClient();
         BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
         String line;
 

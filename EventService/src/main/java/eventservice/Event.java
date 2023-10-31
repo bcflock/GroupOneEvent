@@ -92,7 +92,7 @@ public record Event(
     }
 
     public EventPojo toPojo(){
-        return new EventPojo(uuid.toString(), eventDateTime.toString(), title, description, hEmail);
+        return new EventPojo(uuid.toString(), eventDateTime, title, description, hEmail);
     }
 
 

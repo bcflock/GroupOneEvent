@@ -77,7 +77,7 @@ public class Main {
                 ev.put("desc", description);
                 ev.put("email", hostEmail);
                 ev.putOpt("uuid", eventID);
-
+                System.out.println(date);
                 uri = URI.create(GATEWAY + "/api/event");
                 HttpRequest request = HttpRequest.newBuilder(uri)
                                 .POST(BodyPublishers.ofString(ev.toString()))
@@ -170,13 +170,13 @@ public class Main {
     @Command(name = "list-participants", mixinStandardHelpOptions = true, version="1.0")
     private static class ListParticipantsCommand implements Callable<Integer> {
 
-        @Option(names = {"-ei", "--event-id"})
+        @Parameters(index = "0")
         String eventID;
 
         @Override
         public Integer call(){
             JSONObject pl = new JSONObject();
-            pl.putOpt("eventID", eventID);
+            pl.put("eventID", eventID);
             var request = HttpRequest.newBuilder()
                     .uri(URI.create(GATEWAY+"/api/list-participants"))
                     .POST(BodyPublishers.ofString(pl.toString()))

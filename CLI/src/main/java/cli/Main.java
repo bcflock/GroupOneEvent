@@ -11,13 +11,16 @@ import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
+import java.time.LocalTime;
 
 
 import org.json.JSONObject;
@@ -57,22 +60,30 @@ public class Main {
             try {
                 JSONObject ev = new JSONObject();
 
-                ev.put("Date", date);
-                ev.put("Time", time);
-                ev.put("AMPM", ampm);
-                ev.put("Title", title);
-                ev.put("Description", description);
-                ev.put("Host Email", hostEmail);
-                ev.putOpt("Event ID", eventID);
+                LocalTime evTime = LocalTime.parse(time);
+                if(ampm.equalsIgnoreCase("pm")){
+                    evTime.plusHours(12);
+                }
+
+                ev.put("date", date);
+                ev.put("time", evTime);
+                ev.put("title", title);
+                ev.put("desc", description);
+                ev.put("email", hostEmail);
+                ev.putOpt("uuid", eventID);
+                System.out.println(ev.toString());
 
                 uri = URI.create("http://ec2-54-145-190-43.compute-1.amazonaws.com:3000/api/event");
                 
                 HttpRequest request = HttpRequest.newBuilder(uri).
                         POST(BodyPublishers.ofString(ev.toString()))
-                        .header("Content-type","application/json")
+                        .header("Content-type","application/x-www-form-urlencoded")
                         .build();
 
-                client.send(request, BodyHandlers.discarding());
+                var response = client.send(request, BodyHandlers.discarding());
+                //assertEquals(200, response.statusCode());
+                    System.out.println("Failed to create event"); 
+
 
             } catch(IOException | InterruptedException e){
                 System.out.println("Failed to create event: " + e.getMessage());
@@ -97,23 +108,24 @@ public class Main {
         String participantID;
 
         @Override
-        public Integer call() throws SQLException {
+        public Integer call() {
             try {
                 JSONObject pp = new JSONObject();
 
-                pp.put("Event ID", eventID);
-                pp.put("Name", name);
-                pp.put("Email", email);
-                pp.putOpt("Participant ID", participantID);
+                pp.put("eventID", eventID);
+                pp.put("name", name);
+                pp.put("email", email);
+                pp.putOpt("uuid", participantID);
                 
                 uri = URI.create("http://ec2-54-145-190-43.compute-1.amazonaws.com:3000/api/participant");
                 
                 HttpRequest request = HttpRequest.newBuilder(uri).
                         POST(BodyPublishers.ofString(pp.toString()))
-                        .header("Content-type","application/json")
+                        .header("Content-type","application/x-www-form-urlencoded")
                         .build();
 
-                client.send(request, BodyHandlers.discarding());
+                HttpResponse response = client.send(request, BodyHandlers.ofString());
+
 
             } catch(IOException | InterruptedException e){
                 System.out.println("Failed to create participant: " + e.getMessage());
@@ -121,38 +133,54 @@ public class Main {
             return 0;
         }
     }
-/* 
+ 
     @Command(name = "list-events", mixinStandardHelpOptions = true, version="1.0")
     private static class ListEventsCommand implements Callable<Integer> {
 
         @Override
-        public Integer call() throws SQLException {
-            List<Event> events = getEvents();
-            StringBuilder sb = new StringBuilder();
+        public Integer call() {
+            try{
+                uri = URI.create("http://ec2-54-145-190-43.compute-1.amazonaws.com:3000/api/list-events");
+                //List<Event> events = new ArrayList<>();
+                //StringBuilder sb = new StringBuilder();
 
-            for(Event event : events){
-                sb.append(String.format(
-                        "%s on %s at %s | Host Email: %s | Event ID: %s | '%s' \n\n",
-                        event.title(),
-                        event.eventDateTime().toLocalDate().format(
-                                DateTimeFormatter.ISO_LOCAL_DATE
-                        ),
-                        //event.eventDateTime().getHour(), event.eventDateTime().getMinute(),
-                        event.eventDateTime().toLocalTime().format(
-                                DateTimeFormatter.ofPattern("hh:mm a")
-                        ),
-                        event.hEmail(),
-                        event.uuid(),
-                        event.description()
-                ));
+                HttpRequest request = HttpRequest.newBuilder(uri).
+                            GET()
+                            .header("Content-type","application/x-www-form-urlencoded")
+                            .build();
+
+                HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
+                String eList = response.body();
+                System.out.println(eList);
             }
+            catch(IOException | InterruptedException e){
+                System.out.println("Failed to retrieve event list: " + e.getMessage());
+            }
+/* 
+                for(Event event : events){
+                    sb.append(String.format(
+                            "%s on %s at %s | Host Email: %s | Event ID: %s | '%s' \n\n",
+                            event.title(),
+                            event.eventDateTime().toLocalDate().format(
+                                    DateTimeFormatter.ISO_LOCAL_DATE
+                            ),
+                            //event.eventDateTime().getHour(), event.eventDateTime().getMinute(),
+                            event.eventDateTime().toLocalTime().format(
+                                    DateTimeFormatter.ofPattern("hh:mm a")
+                            ),
+                            event.hEmail(),
+                            event.uuid(),
+                            event.description()
+                    ));
+                }
 
-            System.out.println(sb);
+                System.out.println(sb);
+                */
             return 0;
         }
 
     }
-
+/* 
     @Command(name = "list-participants", mixinStandardHelpOptions = true, version="1.0")
     private static class ListParticipantsCommand implements Callable<Integer> {
 
@@ -173,10 +201,12 @@ public class Main {
 
             System.out.println(sb);
             return 0;
+            }
+            
         }
+        
+    }*/
 
-    }
-*/
     
     public static void main(String[] args) throws IOException, SQLException {
 
@@ -193,7 +223,7 @@ public class Main {
             switch(words[0]){
                 case "event" -> new CommandLine(new EventCommand()).execute(commandArgs);
                 case "participant" -> new CommandLine(new ParticipantCommand()).execute(commandArgs);
-                //case "list-events" -> new CommandLine(new ListEventsCommand()).execute(commandArgs);
+                case "list-events" -> new CommandLine(new ListEventsCommand()).execute(commandArgs);
                 //case "list-participants" -> new CommandLine(new ListParticipantsCommand()).execute(commandArgs);
                 default -> System.out.println("Error: unknown command");
             }

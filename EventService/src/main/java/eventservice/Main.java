@@ -124,7 +124,7 @@ public class Main {
                 Event event = Event.create(eventID, date, time, title, description, hostEmail);
                 System.out.println(event);
 
-                datastore.insert(event);
+                datastore.insert(event.toPojo());
                 System.out.println("Event created: " + event);
             } catch(NoSuchElementException e){
                 fail(exchange, 400, "Must provide json in request body");
@@ -138,7 +138,7 @@ public class Main {
     }
 
     public static void main(String[] args) throws IOException {
-        datastore.getMapper().mapPackage("com.mongodb.morphia.entities");
+        datastore.getMapper().mapPackage("eventservice");
         datastore.ensureIndexes();
 
         try {

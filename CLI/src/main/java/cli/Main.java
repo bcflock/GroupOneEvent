@@ -11,13 +11,16 @@ import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
+import java.time.LocalTime;
 
 
 import org.json.JSONObject;
@@ -63,7 +66,7 @@ public class Main {
                 if (hour > 11 ) {
                     hour = 0;
                 }
-                if (ampm.equals("PM")) {
+                if (ampm.equalsIgnoreCase("PM")) {
                     hour += 12;
                 }
 
@@ -76,14 +79,11 @@ public class Main {
                 ev.putOpt("uuid", eventID);
                 System.out.println(date);
                 uri = URI.create(GATEWAY + "/api/event");
-                
                 HttpRequest request = HttpRequest.newBuilder(uri)
                                 .POST(BodyPublishers.ofString(ev.toString()))
                                 .header("Content-type","application/json")
                                 .build();
-
-                client.send(request, BodyHandlers.discarding());
-
+                var response = client.send(request, BodyHandlers.discarding());
             } catch(IOException | InterruptedException e){
                 System.out.println("Failed to create event: " + e.getMessage());
             }
@@ -107,7 +107,7 @@ public class Main {
         String participantID;
 
         @Override
-        public Integer call() throws SQLException {
+        public Integer call() {
             try {
                 JSONObject pp = new JSONObject();
 
@@ -120,10 +120,11 @@ public class Main {
                 
                 HttpRequest request = HttpRequest.newBuilder(uri).
                         POST(BodyPublishers.ofString(pp.toString()))
-                        .header("Content-type","application/json")
+                        .header("Content-type","application/x-www-form-urlencoded")
                         .build();
 
-                client.send(request, BodyHandlers.discarding());
+                HttpResponse response = client.send(request, BodyHandlers.ofString());
+
 
             } catch(IOException | InterruptedException e){
                 System.out.println("Failed to create participant: " + e.getMessage());
@@ -164,7 +165,6 @@ public class Main {
             }
             return 0;
         }
-
     }
 /*
     @Command(name = "list-participants", mixinStandardHelpOptions = true, version="1.0")
@@ -187,10 +187,15 @@ public class Main {
 
             System.out.println(sb);
             return 0;
+            }
+            
         }
+        
+    }*/
 
-    }
-*/
+
+
+
 
     public static void main(String[] args) throws IOException, SQLException {
 

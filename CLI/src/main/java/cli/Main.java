@@ -69,7 +69,7 @@ public class Main {
                 
                 HttpRequest request = HttpRequest.newBuilder(uri).
                         POST(BodyPublishers.ofString(ev.toString()))
-                        .header("Content-type","application/x-www-form-urlencoded")
+                        .header("Content-type","application/json")
                         .build();
 
                 client.send(request, BodyHandlers.discarding());
@@ -99,30 +99,29 @@ public class Main {
         @Override
         public Integer call() throws SQLException {
             try {
+                JSONObject pp = new JSONObject();
 
-                JSONObject ev = new JSONObject();
+                pp.put("Event ID", eventID);
+                pp.put("Name", name);
+                pp.put("Email", email);
+                pp.putOpt("Participant ID", participantID);
+                
+                uri = URI.create("http://ec2-54-145-190-43.compute-1.amazonaws.com:3000/api/participant");
+                
+                HttpRequest request = HttpRequest.newBuilder(uri).
+                        POST(BodyPublishers.ofString(pp.toString()))
+                        .header("Content-type","application/json")
+                        .build();
 
-                ev.put("Event ID", eventID);
-                ev.put("Name", name);
-                ev.put("Email", email);
-                ev.putOpt("Participant ID", participantID);
-                if (participantID != null) {
-                    //dbClient.addParticipant(
-                    //        Participant.create(participantID, eventID, name, email)
-                   // );
-                } else {
-                   // dbClient.addParticipant(
-                     //       Participant.create(eventID, name, email)
-                    //);
-                }
-            } catch (Event.HandledIllegalValueException e){
+                client.send(request, BodyHandlers.discarding());
+
+            } catch(IOException | InterruptedException e){
                 System.out.println("Failed to create participant: " + e.getMessage());
             }
             return 0;
         }
-
     }
-
+/* 
     @Command(name = "list-events", mixinStandardHelpOptions = true, version="1.0")
     private static class ListEventsCommand implements Callable<Integer> {
 
@@ -177,7 +176,7 @@ public class Main {
         }
 
     }
-
+*/
     
     public static void main(String[] args) throws IOException, SQLException {
 
@@ -194,8 +193,8 @@ public class Main {
             switch(words[0]){
                 case "event" -> new CommandLine(new EventCommand()).execute(commandArgs);
                 case "participant" -> new CommandLine(new ParticipantCommand()).execute(commandArgs);
-                case "list-events" -> new CommandLine(new ListEventsCommand()).execute(commandArgs);
-                case "list-participants" -> new CommandLine(new ListParticipantsCommand()).execute(commandArgs);
+                //case "list-events" -> new CommandLine(new ListEventsCommand()).execute(commandArgs);
+                //case "list-participants" -> new CommandLine(new ListParticipantsCommand()).execute(commandArgs);
                 default -> System.out.println("Error: unknown command");
             }
             System.out.print("$> ");

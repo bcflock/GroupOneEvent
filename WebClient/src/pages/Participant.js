@@ -33,7 +33,7 @@ function Participant() {
       toast.error("Error connecting to server: " + error);
     }) 
 
-    if (v alid) {
+    if (valid) {
       const jsonObject = {
         "name" : name,
         "eventID": eventID.toLowerCase(),

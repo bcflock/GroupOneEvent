@@ -15,6 +15,8 @@ public class EventPojo {
     String description;
     String hEmail;
 
+    public EventPojo(){
+    }
     public EventPojo(UUID uuid, LocalDateTime eventDateTime, String title, String description, String hEmail) {
         this.uuid = uuid;
         this.eventDateTime = eventDateTime;

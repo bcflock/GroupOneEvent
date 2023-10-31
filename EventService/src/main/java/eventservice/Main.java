@@ -88,9 +88,11 @@ public class Main {
 
         @Override
         public void handle(HttpExchange exchange) {
+            System.out.println("Getting events");
             List<Event> events = datastore.find(Event.class)
                     .iterator(new FindOptions().sort(Sort.descending("eventDateTime")))
                     .toList();
+            System.out.println("Events got");
             JSONArray eventList = new JSONArray();
             events.forEach(
                     event ->

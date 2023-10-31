@@ -16,13 +16,61 @@ public final class Event {
 
     private static final int TITLE_MAX_LENGTH = 255;
     private static final int  DESCRIPTION_MAX_LENGTH = 600;
-    @Id String id;
+    @Id private String id;
+    private UUID uuid;
+    private LocalDateTime eventDateTime;
+    private String title;
+    private String description;
+    private String hEmail;
 
-    final UUID uuid;
-    final LocalDateTime eventDateTime;
-    final String title;
-    final String description;
-    final String hEmail;
+
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
+    }
+
+    public LocalDateTime getEventDateTime() {
+        return eventDateTime;
+    }
+
+    public void setEventDateTime(LocalDateTime eventDateTime) {
+        this.eventDateTime = eventDateTime;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String gethEmail() {
+        return hEmail;
+    }
+
+    public void sethEmail(String hEmail) {
+        this.hEmail = hEmail;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public Event(
             UUID uuid,

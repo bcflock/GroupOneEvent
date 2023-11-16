@@ -50,8 +50,9 @@ def publish(topic,  payload:json):
 if __name__ == "__main__":
     init_word_list()
     events = []
-    for i in range(0, 100):
+    for i in range(0, 150):
         uid, event = random_event()
+        print(event)
         events.append(uid)
         publish(EVENT_TOPIC, event)
     

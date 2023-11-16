@@ -4,3 +4,4 @@ passfile.txt
 .idea
 .vscode
 *.iml
+Consumer/target/*

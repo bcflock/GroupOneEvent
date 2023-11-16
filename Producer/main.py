@@ -28,12 +28,14 @@ def random_date():
     i = random.randint(1, 12)
     j = random.randint(1, 28)
     if i < 10: i=f'0{i}'
-    if j < 10: i=f'0{j}'
+    if j < 10: j=f'0{j}'
+    print(i, j)
     return f'20{random.randint(10,99)}-{i}-{j}'
 
 def random_time():
     min = random.randint(0, 59)
     if min < 10: min = f'0{min}'  
+    print(min)
     return f'{random.randint(0,23)}:{min}'
 
 def random_event() -> (uuid.UUID, json):
@@ -63,15 +65,15 @@ producer = KafkaProducer(bootstrap_servers=f'{SERVER}:{PORT}')
 def publish(topic,  payload:json):
     producer.send(topic, json.dumps(payload).encode('ascii'))   
 
-MAGIC_CONSTANT = 0x3c #its magic because its hex
+MAGIC_CONSTANT = 0xA #its magic because its hex
 if __name__ == "__main__":
     init_word_list()
     events = []
-    rand_multiplier = random.randint(5, 10)
-    for i in range(0, int(MAGIC_CONSTANT * rand_multiplier)):
+    rand_multiplier = lambda : random.randint(5, 10)
+    for i in range(0, 10 * rand_multiplier()):
         print(i)
         uid, event = random_event()
         publish(EVENT_TOPIC, event)
-        for i in range(0, int(rand_multiplier)):
+        for i in range(0, rand_multiplier()):
             participant = random_participant(uid)
             publish(PARTICIPANT_TOPIC, participant)

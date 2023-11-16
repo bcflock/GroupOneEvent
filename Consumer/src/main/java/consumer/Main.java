@@ -6,13 +6,19 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.errors.WakeupException;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.json.JSONObject;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Properties;
 
 public class Main {
 
+    private static final String GATEWAY = "http://ec2-54-145-190-43.compute-1.amazonaws.com:3000";
     private static final String BOOTSTRAP_SERVERS = "127.0.0.1:9092";
     private static final String GROUP_ID = "GroupOneEvent";
     private static final String EVENT_TOPIC = "events";
@@ -28,18 +34,37 @@ public class Main {
 
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(properties);
 
-        Thread mainThread = Thread.currentThread();
-        Runtime.getRuntime().addShutdownHook(new Thread(consumer::wakeup));
-
-        try{
+        try(consumer){
+            Runtime.getRuntime().addShutdownHook(new Thread(consumer::wakeup));
             consumer.subscribe(Arrays.asList(EVENT_TOPIC, PARTICIPANT_TOPIC));
 
             while(true){
                 ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
 
                 for(ConsumerRecord<String, String> record : records){
-                    //log.info("Key: " + record.key() + ", Value: " + record.value());
-                    //log.info("Partition: " + record.partition() + ", Offset:" + record.offset());
+                    if(record.topic().equals(EVENT_TOPIC)){
+                        /*try{
+                            JSONObject ev = new JSONObject();
+                            ev.put("date", date);
+                            ev.put("time", time);
+                            ev.put("title", title);
+                            ev.put("desc", description);
+                            ev.put("email", hostEmail);
+                            ev.putOpt("uuid", eventID);
+                            uri = URI.create(GATEWAY + "/api/event");
+                            HttpRequest request = HttpRequest.newBuilder(uri)
+                                    .POST(HttpRequest.BodyPublishers.ofString(ev.toString()))
+                                    .header("Content-type","application/json")
+                                    .build();
+                            var response = client.send(request, HttpResponse.BodyHandlers.discarding());
+                        }catch(IOException | InterruptedException e){
+                            System.out.println("Failed to create event: " + e.getMessage());
+                        }*/
+                    }else if(record.topic().equals(PARTICIPANT_TOPIC)){
+
+                    }else{
+                        System.out.println("WUT DA HELLLLL");
+                    }
                 }
             }
 
@@ -48,10 +73,9 @@ public class Main {
             // we ignore this as this is an expected exception when closing a consumer
         }catch(Exception e){
             //log.error("Unexpected exception", e);
-        }finally{
-            consumer.close(); // this will also commit the offsets if need be.
-            //log.info("The consumer is now gracefully closed.");
         }
+        // this will also commit the offsets if need be.
+        //log.info("The consumer is now gracefully closed.");
     }
 
 }

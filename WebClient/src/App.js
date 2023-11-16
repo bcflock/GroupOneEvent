@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import Navigator from './components/Navigator';
-import Event from "./pages/Event";
 import { Toaster } from 'react-hot-toast';
+import GetEvents from './pages/GetEvents';
 
 
 function App() {
 
-    const [page, setPage] = useState(<Event/>);
+    const [page, setPage] = useState(<GetEvents/>);
 
     return (
         <div className="App" style={{'margin': '0'}}>

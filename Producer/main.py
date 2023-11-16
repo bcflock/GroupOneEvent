@@ -15,6 +15,7 @@ def init_word_list():
         "https://raw.githubusercontent.com/bevacqua/correcthorse/master/wordlist.json"
     )
     words = json.loads(words.text)
+
 def random_word():
     return words[random.randrange(len(words))]
 def random_pair():
@@ -42,6 +43,16 @@ def random_event() -> (uuid.UUID, json):
     }
     return uid, event
 
+def random_participant(event_id: uuid.UUID) -> (uuid.UUID, json):
+    uid: uuid.UUID = uuid.uuid4()
+    participant = {
+        "name" : random_pair(),
+        "eventID": event_id,
+        "email": random_email(),
+        "uuid": uid
+      }
+    return participant
+
 producer = KafkaProducer(bootstrap_servers=f'{SERVER}:{PORT}')
 def publish(topic,  payload:json):
     producer.send(topic, json.dumps(payload).encode('ascii'))   
@@ -50,9 +61,10 @@ def publish(topic,  payload:json):
 if __name__ == "__main__":
     init_word_list()
     events = []
-    for i in range(0, 150):
+    rand_multiplier = (random.random / 2) + 0.5
+    for i in range(0, int(100 * rand_multiplier)):
         uid, event = random_event()
-        print(event)
-        events.append(uid)
         publish(EVENT_TOPIC, event)
-    
+        for i in range(0, int(10 * rand_multiplier)):
+            participant = random_participant(uid)
+            publish(PARTICIPANT_TOPIC, participant)

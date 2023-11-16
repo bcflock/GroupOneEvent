@@ -22,7 +22,7 @@ def random_pair():
     return f'{random_word()} {random_word()}'
     
 def random_mail():
-    return f'{random_word()}@{random_word()}.com'
+    return f'{random_word()}.{random_word()}@{random_word()}.com'
 
 def random_date():
     i = random.randint(1, 12)

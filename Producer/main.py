@@ -22,13 +22,19 @@ def random_pair():
     return f'{random_word()} {random_word()}'
     
 def random_mail():
-    return f'{random_word()}.{random_word()}@{random_word()}.com'
+    return f'{random_word()}@{random_word()}.com'
 
 def random_date():
-    return f'202{random.randint(0,9)}-{random.randint(1, 12)}-{random.randint(1, 28)}'
+    i = random.randint(1, 12)
+    j = random.randint(1, 28)
+    if i < 10: i=f'0{i}'
+    if j < 10: i=f'0{j}'
+    return f'20{random.randint(10,99)}-{i}-{j}'
 
 def random_time():
-    return f'{random.randint(0,23)}:{random.randint(10, 59)}'
+    min = random.randint(0, 59)
+    if min < 10: min = f'0{min}'  
+    return f'{random.randint(0,23)}:{min}'
 
 def random_event() -> (uuid.UUID, json):
     uid: uuid.UUID = uuid.uuid4()
@@ -47,9 +53,9 @@ def random_participant(event_id: uuid.UUID) -> (uuid.UUID, json):
     uid: uuid.UUID = uuid.uuid4()
     participant = {
         "name" : random_pair(),
-        "eventID": event_id,
-        "email": random_email(),
-        "uuid": uid
+        "eventID": str(event_id),
+        "email": random_mail(),
+        "uuid": str(uid)
       }
     return participant
 
@@ -57,14 +63,15 @@ producer = KafkaProducer(bootstrap_servers=f'{SERVER}:{PORT}')
 def publish(topic,  payload:json):
     producer.send(topic, json.dumps(payload).encode('ascii'))   
 
-
+MAGIC_CONSTANT = 0x3c #its magic because its hex
 if __name__ == "__main__":
     init_word_list()
     events = []
-    rand_multiplier = (random.random / 2) + 0.5
-    for i in range(0, int(100 * rand_multiplier)):
+    rand_multiplier = random.randint(5, 10)
+    for i in range(0, int(MAGIC_CONSTANT * rand_multiplier)):
+        print(i)
         uid, event = random_event()
         publish(EVENT_TOPIC, event)
-        for i in range(0, int(10 * rand_multiplier)):
+        for i in range(0, int(rand_multiplier)):
             participant = random_participant(uid)
             publish(PARTICIPANT_TOPIC, participant)

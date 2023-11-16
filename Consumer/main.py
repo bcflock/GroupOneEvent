@@ -1,6 +1,7 @@
 from kafka import KafkaConsumer
 import requests as rq
 import threading
+import time
 SERVER  = 'localhost'
 PORT    = 9092
 EVENT_TOPIC = "events"
@@ -10,15 +11,24 @@ EVENT_ENDPOINT = "event"
 PARTICIPANT_ENDPOINT = "participant"
 consumer = KafkaConsumer()
 def events():
-    print("events")
     consumer = KafkaConsumer(EVENT_TOPIC)
     for msg in consumer:
-        rsp = rq.post(f'{GATEWAY}/{EVENT_ENDPOINT}', data=msg.value)
+        while True:
+            try:
+                rsp = rq.post(f'{GATEWAY}/{EVENT_ENDPOINT}', data=msg.value)
+                break
+            except Exception:
+                time.sleep(10)
+
 def participants():
-    print("participants")
     consumer = KafkaConsumer(PARTICIPANT_TOPIC)
     for msg in consumer:
-        rsp = rq.post(f'{GATEWAY}/{PARTICIPANT_ENDPOINT}', data=msg.value)
+        while True:
+            try:
+                rsp = rq.post(f'{GATEWAY}/{PARTICIPANT_ENDPOINT}', data=msg.value)
+                break
+            except Exception:
+                time.sleep(10)
 
 
 if __name__ == "__main__":
